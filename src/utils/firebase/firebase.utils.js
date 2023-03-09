@@ -6,7 +6,8 @@ import {
     getAuth, //setting the auth instance
     signInWithRedirect,
     signInWithPopup,
-    GoogleAuthProvider
+    GoogleAuthProvider,
+    createUserWithEmailAndPassword
 } from "firebase/auth"
 
 import {
@@ -32,14 +33,15 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
-const provider = new GoogleAuthProvider();
+const googleprovider = new GoogleAuthProvider();
 
-provider.setCustomParameters({
+googleprovider.setCustomParameters({
     prompt: "select_account"
 })
 
 export const auth = getAuth()
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider)
+export const signInWithGooglePopup = () => signInWithPopup(auth, googleprovider)
+export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googleprovider)
 
 
 // initializing our db 
@@ -48,7 +50,7 @@ export const db = getFirestore();
 
 // This Basically creates a user based off the authentication from GoogleAuth. 
 // The authentication gives a unique ID which we use per document created 
-export const createUserDocumentFromAuth = async (userAuth) => {
+export const createUserDocumentFromAuth = async (userAuth, additionalInformation = {}) => {
 
     // Creating a document within the provided collections name "users" in the db - A document is in a collection
     const userDocRef = doc(db, "users", userAuth.uid)
@@ -67,11 +69,18 @@ export const createUserDocumentFromAuth = async (userAuth) => {
             await setDoc(userDocRef, {
                 displayName,
                 email,
-                createdAt
+                createdAt,
+                ...additionalInformation
             })
         } catch (err) {
             console.log(err, "Error creating a user")
         }
     }
     return userDocRef
+}
+
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+    if (!email || !password) return;
+
+    return await createUserWithEmailAndPassword(auth, email, password)
 }
