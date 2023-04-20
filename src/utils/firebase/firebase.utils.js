@@ -18,6 +18,10 @@ import {
   doc, //setting the doc instance
   getDoc,
   setDoc,
+  collection,
+  writeBatch,
+  query,
+  getDocs,
 } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -50,6 +54,36 @@ export const signInWithGoogleRedirect = () =>
 
 // initializing our db
 export const db = getFirestore();
+
+// This creates a new collection and document in the database. "Collection key"
+// is the collection name in firebase. "addCollectionAndDocument" called on product context with useEffect to push the data to firebase
+export const addCollectionAndDocument = async (collectionKey, objectsToAdd) => {
+  const collectionRef = collection(db, collectionKey);
+  const batch = writeBatch(db);
+
+  objectsToAdd.forEach((object) => {
+    const docRef = doc(collectionRef, object.title.toLowerCase());
+    batch.set(docRef, object);
+  });
+
+  await batch.commit();
+  console.log("done");
+};
+
+// This retrieves information back from the db
+export const getCategoriesAndDocuments = async () => {
+  const collectionRef = collection(db, "categories");
+  // This gives an object from the db which i can get a snapchot from
+  const q = query(collectionRef);
+
+  const querySnapshot = await getDocs(q);
+  const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+    const { title, items } = docSnapshot.data(); //doc.Snapshot.data is the entire object
+    acc[title.toLowerCase()] = items;
+    return acc;
+  }, {});
+  return categoryMap;
+};
 
 // This Basically creates a user based off the authentication from GoogleAuth.
 // The authentication gives a unique ID which we use per document created
