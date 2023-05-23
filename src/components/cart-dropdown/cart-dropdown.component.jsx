@@ -1,3 +1,6 @@
+// This are use for performance optimization
+import { useCallback, useMemo } from "react";
+
 // Allows for the use of links in buttons
 import { useNavigate } from "react-router-dom";
 
@@ -20,9 +23,9 @@ const CartDropdown = () => {
   const navigate = useNavigate();
 
   // this handler is used by the dom on the checkout button to navigate to the page
-  const goToCheckoutHandler = () => {
+  const goToCheckoutHandler = useCallback(() => {
     navigate("/checkout");
-  };
+  }, []);
 
   return (
     <CartDropdownContainer>

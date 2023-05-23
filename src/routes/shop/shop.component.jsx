@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import Categoriespreview from "../categories-preview/categories-preview.component";
-import Category from "../category/category.component";
+import Category from "../category/category.component.tsx";
 
 // // This is our Normal ACTION creator
 // import { setCategories } from "../../store/categories/categories.action";
